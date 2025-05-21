@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Excercise1
@@ -9,12 +10,13 @@ namespace Excercise1
 
         protected virtual void OnEnable()
         {
-            //TODO: Add to CharacterService. The id should be the given serialized field. 
+            //TODO: Add to CharacterService. The id should be the given serialized field.
+            ServiceLocator.SetService(id, this);
         }
 
         protected virtual void OnDisable()
         {
-            //TODO: Remove from CharacterService.
+            ServiceLocator.RemoveService(id);
         }
     }
 }

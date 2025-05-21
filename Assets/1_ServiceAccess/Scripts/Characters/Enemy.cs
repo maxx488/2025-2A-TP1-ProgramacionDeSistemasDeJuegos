@@ -20,6 +20,7 @@ namespace Excercise1
         {
             base.OnEnable();
             //TODO: Get the reference to the player.
+            _player = ServiceLocator.GetService(playerId) as ICharacter;
             if (_player == null)
                 Debug.LogError($"{_logTag} Player not found!");
         }

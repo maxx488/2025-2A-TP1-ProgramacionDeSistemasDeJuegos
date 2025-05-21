@@ -10,8 +10,7 @@ namespace Gameplay
         [SerializeField] private InputActionReference jumpInput;
         [SerializeField] private float airborneSpeedMultiplier = .5f;
         //TODO: This booleans are not flexible enough. If we want to have a third jump or other things, it will become a hazzle.
-        private bool _isJumping;
-        private bool _isDoubleJumping;
+        private MovementState _movementState = new();
         private Character _character;
         private Coroutine _jumpCoroutine;
 
@@ -43,7 +42,7 @@ namespace Gameplay
         private void HandleMoveInput(InputAction.CallbackContext ctx)
         {
             var direction = ctx.ReadValue<Vector2>().ToHorizontalPlane();
-            if (_isJumping || _isDoubleJumping)
+            if (_movementState != MovementState.grounded)
                 direction *= airborneSpeedMultiplier;
             _character?.SetDirection(direction);
         }
@@ -51,16 +50,17 @@ namespace Gameplay
         private void HandleJumpInput(InputAction.CallbackContext ctx)
         {
             //TODO: This function is barely readable. We need to refactor how we control the jumping
-            if (_isJumping)
+            switch (_movementState)
             {
-                if (_isDoubleJumping)
-                    return;
-                RunJumpCoroutine();
-                _isDoubleJumping = true;
-                return;
+                case MovementState.grounded:
+                    _movementState = MovementState.singleJump;
+                    RunJumpCoroutine();
+                    break;
+                case MovementState.singleJump:
+                    _movementState = MovementState.doubleJump;
+                    RunJumpCoroutine();
+                    break;
             }
-            RunJumpCoroutine();
-            _isJumping = true;
         }
 
         private void RunJumpCoroutine()
@@ -76,8 +76,7 @@ namespace Gameplay
             {
                 if (Vector3.Angle(contact.normal, Vector3.up) < 5)
                 {
-                    _isJumping = false;
-                    _isDoubleJumping = false;
+                    _movementState = MovementState.grounded;
                 }
             }
         }
